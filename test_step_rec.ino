@@ -12,8 +12,8 @@
 SDClass theSD;
 AudioClass *theAudio;
 
-File myFile;
-File dataFile;
+File AudioFile;
+File StepFile;
 
 const int i2c_addr = 0x68;
 const int baudrate = 115200;
@@ -77,19 +77,19 @@ bool step_counter_result(sensor_command_data_mh_t &data)
          steps->distance,
          steps->step);
 
-  dataFile = theSD.open("dir/test.txt", FILE_WRITE);
-  dataFile.print(tempo);
-  dataFile.print(",");
-  dataFile.print(steps->stride);
-  dataFile.print(",");
-  dataFile.print(steps->speed);
-  dataFile.print(",");
-  dataFile.print(steps->distance);
-  dataFile.print(",");
-  dataFile.print(steps->step);
-  dataFile.println(",");
+  StepFile = theSD.open("dir/test.txt", FILE_WRITE);
+  StepFile.print(tempo);
+  StepFile.print(",");
+  StepFile.print(steps->stride);
+  StepFile.print(",");
+  StepFile.print(steps->speed);
+  StepFile.print(",");
+  StepFile.print(steps->distance);
+  StepFile.print(",");
+  StepFile.print(steps->step);
+  StepFile.println(",");
 
-  dataFile.close();
+  StepFile.close();
 
   switch (steps->movement_type)
   {
@@ -179,9 +179,9 @@ void recorderMode(char *fname)
   theAudio->initRecorder(AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_48000, AS_CHANNEL_STEREO);
 
   /* Open file for data write on SD card */
-  myFile = theSD.open(fname, FILE_WRITE);
+  AudioFile = theSD.open(fname, FILE_WRITE);
   /* Verify file open */
-  if (!myFile)
+  if (!AudioFile)
   {
     printf("File open error\n");
     exit(1);
@@ -206,7 +206,7 @@ bool recordStream()
   }
 
   /* Read frames to record in file */
-  err = theAudio->readFrames(myFile);
+  err = theAudio->readFrames(AudioFile);
 
   if (err != AUDIOLIB_ECODE_OK)
   {
@@ -233,8 +233,8 @@ bool recordStream()
 stop_recorder:
   sleep(1);
   theAudio->stopRecorder();
-  theAudio->closeOutputFile(myFile);
-  myFile.close();
+  theAudio->closeOutputFile(AudioFile);
+  AudioFile.close();
   cnt = 0;
 
   fcnt++;
